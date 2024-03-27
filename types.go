@@ -94,6 +94,7 @@ func SchemaOptPhonetic(matcher string) SchemaOpt {
 type FieldSchema struct {
 	// Field types can be numeric, textual or geographical.
 	// See FieldDataType constants
+	Alias   string
 	Type    string
 	Options []SchemaOpt
 }
@@ -101,6 +102,9 @@ type IndexOptions struct {
 	// The index name to create. If it exists the old spec will be overwritten
 	// This is a REQUIRED field
 	IndexName string
+	//
+	//HASH or JSON
+	ON string
 	// Tells the index which keys it should index.
 	// You can add several prefixes to index. Since the argument is optional, the default is * (all keys)
 	Prefix []string

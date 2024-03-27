@@ -4,11 +4,12 @@ import (
 	stdContext "context"
 	"errors"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"log"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/redis/go-redis/v9"
 )
 
 // Client hold basic methods to interact with redisearch module for redis
@@ -308,7 +309,12 @@ func (r *RediSearch) CreateIndex(ctx stdContext.Context, opts IndexOptions, drop
 		"FT.CREATE",
 		opts.IndexName,
 		"ON",
-		"HASH",
+	}
+	on := strings.ToUpper(opts.ON)
+	if on == "HASH" || on == "JSON" {
+		args = append(args, on)
+	} else {
+		return errors.New("HASH or JSON")
 	}
 	if pLen := len(opts.Prefix); pLen != 0 {
 		p := make([]interface{}, pLen+2)
@@ -359,7 +365,12 @@ func (r *RediSearch) CreateIndex(ctx stdContext.Context, opts IndexOptions, drop
 	if len(opts.Schema) != 0 {
 		args = append(args, "SCHEMA")
 		for field, schema := range opts.Schema {
-			args = append(args, field, schema.Type)
+			if on == "HASH" {
+				args = append(args, field, schema.Type)
+			}
+			if on == "JSON" {
+				args = append(args, fmt.Sprintf(`$.%s`, field), "AS", schema.Alias, schema.Type)
+			}
 			for _, option := range schema.Options {
 				args = append(args, option...)
 			}
