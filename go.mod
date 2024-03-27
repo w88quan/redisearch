@@ -1,4 +1,4 @@
-module github.com/gustavotero7/redisearch
+module github.com/w88quan/redisearch
 
 go 1.20
 
